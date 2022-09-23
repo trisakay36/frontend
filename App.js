@@ -1,21 +1,13 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-
+import React, { useEffect } from "react";
+import { View, LogBox } from "react-native";
+import Styles from "./src/Stylesheet";
+import Landing from "./src/components/index";
 export default function App() {
+  useEffect(() => LogBox.ignoreAllLogs(), []);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+    <View style={Styles.container}>
+      <Landing />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
