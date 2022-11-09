@@ -6,7 +6,9 @@ import Driver from "../Driver";
 import Admin from "../Admin";
 
 export default function Users(props) {
-  const usersData = props.value.data;
+  const usersData = props.isLog
+    ? JSON.parse(props.value.value).data
+    : props.value.data;
 
   const MainPage = () => {
     if (usersData.roleID === 1) {

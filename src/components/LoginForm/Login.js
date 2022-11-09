@@ -14,6 +14,7 @@ import axios from "../../config/axios";
 import AppBar from "../AppBar";
 import Forgot from "../Password";
 import Users from "./Users";
+import Admin from "../Admin";
 
 export default function Login(props) {
   const [email, setEmail] = useState("");

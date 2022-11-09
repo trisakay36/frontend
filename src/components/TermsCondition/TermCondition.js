@@ -3,40 +3,16 @@ import { View, ScrollView } from "react-native";
 import { Text, Button, Stack, Flex, VStack } from "@react-native-material/core";
 import styles from "../Stylesheet";
 import Logo from "../../components/primary/Logo";
+import axios from "../../config/axios";
 
 export default function Terms(props) {
-  const terms = [
-    {
-      id: 1,
-      title: "Term 1",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    },
-    {
-      id: 1,
-      title: "Term 1",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    },
-    {
-      id: 1,
-      title: "Term 1",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    },
-    {
-      id: 1,
-      title: "Term 1",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    },
-    {
-      id: 1,
-      title: "Term 1",
-      description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-    },
-  ];
+  const [rows, setRows] = useState([]);
+
+  useEffect(() => {
+    axios.get("admin/terms").then((response) => {
+      setRows(response.data.data);
+    });
+  }, []);
   const layout = (
     <Flex fill center mb={20}>
       <ScrollView style={styles.scrollView}>
@@ -51,7 +27,7 @@ export default function Terms(props) {
             </Text>
           </Flex>
           <Flex fill center style={{ padding: 20 }}>
-            {terms.map((data, i) => (
+            {rows.map((data, i) => (
               <Stack key={i}>
                 <Text variant="subtitle1">
                   <Text style={styles.subnumber}>{`${data.id}. `}</Text>
@@ -63,7 +39,7 @@ export default function Terms(props) {
               </Stack>
             ))}
           </Flex>
-          <Flex fill>
+          <Flex fill center>
             <Button
               title="Tanggapin"
               color="#FFFFFF"

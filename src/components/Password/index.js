@@ -19,16 +19,19 @@ export default function ResetPassword(props) {
   const [email, setEmail] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [result, setResult] = useState("");
-  console.log("🚀 ~ file: index.js ~ line 21 ~ ResetPassword ~ result", result);
+  const [isLoading, setLoading] = useState(false);
 
   const onHandleCreate = async () => {
+    setLoading(true);
     try {
       const res = await axios.post(`/login/forgot_password`, {
         email,
       });
 
       setResult(res.data);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       if (error.response) {
         setErrorMsg(
           error.response.data.error[0] ?? error.response.data.error.message
@@ -88,6 +91,8 @@ export default function ResetPassword(props) {
               color="#FFFFFF"
               variant="outlined"
               style={{ ...styles.btnBlue }}
+              loading={isLoading}
+              disabled={isLoading}
               onPress={onHandleCreate}
             />
           </Flex>

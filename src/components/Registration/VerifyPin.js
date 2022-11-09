@@ -21,29 +21,35 @@ export default function VerifyPin(props) {
   const [txtFour, setTxtFour] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [result, setResult] = useState("");
+  const [isLoading, setLoading] = useState(false);
 
   const onVerifyPin = async () => {
-    try {
-      const userID = props.value.data.id;
-      const data = { otp: `${txtOne}${txtTwo}${txtThree}${txtFour}` };
-      const res = await axios.post(
-        `/register/set_password/otp/${userID}`,
-        data
-      );
-      setResult(res.data);
-    } catch (error) {
-      if (error.response) {
-        console.log(
-          "🚀 ~ file: VerifyPin.js ~ line 36 ~ onVerifyPin ~ error",
-          error.response.data
+    setLoading(true);
+
+    if (txtOne === "" || txtTwo === "" || txtThree === "" || txtFour === "") {
+      setLoading(false);
+
+      setErrorMsg("Ilagay ang PIN");
+    } else {
+      try {
+        const userID = props.value.data.id;
+        const data = { otp: `${txtOne}${txtTwo}${txtThree}${txtFour}` };
+        const res = await axios.post(
+          `/register/set_password/otp/${userID}`,
+          data
         );
-        //setErrorMsg(error.response.data);
+
+        setResult(res.data);
+        setLoading(false);
+      } catch (error) {
+        setErrorMsg("Mali ang PIN");
+        setLoading(false);
       }
     }
   };
   const indexPage = (
     <Flex fill center mb={20}>
-      <AppBar backClick={props.arrowBack} />
+      <AppBar arrowBack={props.arrowBack} />
       <ScrollView style={styles.scrollView}>
         <VStack fill center>
           <Flex fill center style={{ width: 300, height: 300 }}>
@@ -118,6 +124,8 @@ export default function VerifyPin(props) {
               color="#FFFFFF"
               variant="outlined"
               style={{ ...styles.btnBlue, marginBottom: 10 }}
+              loading={isLoading}
+              disabled={isLoading}
               onPress={onVerifyPin}
             />
             <Text color="#132875" w={20} style={styles.txtGreen}>

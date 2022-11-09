@@ -25,7 +25,7 @@ import Logo from "../../components/primary/Logo";
 import axios from "../../config/axios";
 
 export default function Register(props) {
-  console.log("🚀 ~ file: register.js ~ line 28 ~ Register ~ props", props);
+  const [isLoading, setLoading] = useState(false);
   const [fname, setFname] = useState("");
   const [mname, setMname] = useState("");
   const [lname, setLname] = useState("");
@@ -207,13 +207,16 @@ export default function Register(props) {
 
   const onHandleRegister = async () => {
     const roleID = props.value;
+    setLoading(true);
     try {
       const res = await axios.post(
         "/register",
         roleID == 2 ? formData : formsData
       );
       setResult(res.data);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       if (error.response) {
         console.log(
           "🚀 ~ file: register.js ~ line 217 ~ onHandleRegister ~ error",
@@ -586,6 +589,8 @@ export default function Register(props) {
                 color="#FFFFFF"
                 variant="outlined"
                 style={{ ...styles.btnBlue, marginVertical: 10 }}
+                loading={isLoading}
+                disabled={isLoading}
                 onPress={onHandleRegister}
               />
             </Flex>

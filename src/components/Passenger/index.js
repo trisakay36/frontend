@@ -1,8 +1,9 @@
-import * as React from "react";
-import { View, Text, Button, SafeAreaView } from "react-native";
+import React, { useState } from "react";
+import { View, Text, SafeAreaView } from "react-native";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { Avatar, Flex } from "@react-native-material/core";
+import AsyncStorage from "@react-native-community/async-storage";
+import { Avatar, Flex, Button } from "@react-native-material/core";
 
 import {
   createDrawerNavigator,
@@ -10,8 +11,12 @@ import {
   DrawerItem,
 } from "@react-navigation/drawer";
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
-import Maps from "../Screens";
-import Profiles from "./pages/Page2";
+import Maps from "./pages/Map";
+import Profiles from "./pages/Profile";
+import Home from "../index";
+import History from "./pages/History";
+import axios from "../../config/axios";
+
 const MyTheme = {
   ...DefaultTheme,
   colors: {
@@ -19,12 +24,11 @@ const MyTheme = {
     primary: "#132875",
   },
 };
-function Home({ props }) {
-  return <Maps />;
+function HomeMap({ navigation, route }) {
+  return <Maps value={route.params.value} />;
 }
-function Profile({ props }) {
-  console.log("🚀 ~ file: index.js ~ line 26 ~ Profile ~ props", props);
-  return <Profiles />;
+function Profile({ navigation, route }) {
+  return <Profiles value={route.params.value} />;
 }
 
 function Notifications() {
@@ -34,18 +38,10 @@ function Notifications() {
     </View>
   );
 }
-function History() {
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>History Screen</Text>
-    </View>
-  );
+function Historys({ navigation, route }) {
+  return <History value={route.params.value} />;
 }
 function CustomDrawerContent(props) {
-  console.log(
-    "🚀 ~ file: index.js ~ line 45 ~ CustomDrawerContent ~ props",
-    props
-  );
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Flex center p={30}>
@@ -80,19 +76,12 @@ function CustomDrawerContent(props) {
           )}
         />
         <DrawerItem
-          label="Notipikasyon"
+          label="Mga Mensahe"
           onPress={() => {
             props.propss.navigation.navigate("Notipikasyon");
           }}
           icon={({ focused, color, size }) => (
-            <Icon color="#132875" size={size} name="bell" />
-          )}
-        />
-        <DrawerItem
-          label="Maglogout"
-          onPress={() => props.navigation.toggleDrawer()}
-          icon={({ focused, color, size }) => (
-            <Icon color="#132875" size={size} name="logout" />
+            <Icon color="#132875" size={size} name="chat" />
           )}
         />
       </DrawerContentScrollView>
@@ -103,6 +92,11 @@ function CustomDrawerContent(props) {
 const Drawer = createDrawerNavigator();
 
 function MyDrawer(prop) {
+  async function logoutData() {
+    await AsyncStorage.clear();
+    await axios.put(`/logout/${prop.value.id}`);
+    prop.setPages("HomeMap");
+  }
   return (
     <Drawer.Navigator
       screenOptions={{ headerTintColor: "#132875" }}
@@ -113,36 +107,91 @@ function MyDrawer(prop) {
     >
       <Drawer.Screen
         name="Home"
-        component={Home}
-        options={{ headerTitle: "" }}
-        initialParams={{ data: prop }}
+        component={HomeMap}
+        initialParams={prop}
+        options={{
+          headerTitle: "",
+          headerRight: () => (
+            <Button
+              style={{ marginRight: -20 }}
+              variant="text"
+              leading={(s) => <Icon name="logout" {...s} />}
+              color="#132875"
+              onPress={logoutData}
+            />
+          ),
+        }}
       />
       <Drawer.Screen
         name="Aking Profile"
         component={Profile}
-        options={{ headerTitle: "" }}
-        initialParams={{ itemId: 42 }}
+        initialParams={prop}
+        options={{
+          headerTitle: "",
+          headerRight: () => (
+            <Button
+              style={{ marginRight: -20 }}
+              variant="text"
+              leading={(s) => <Icon name="logout" {...s} />}
+              color="#132875"
+              onPress={logoutData}
+            />
+          ),
+        }}
       />
       <Drawer.Screen
         name="History"
-        component={History}
-        options={{ headerTitle: "" }}
+        component={Historys}
+        initialParams={prop}
+        options={{
+          headerTitle: "",
+          headerRight: () => (
+            <Button
+              style={{ marginRight: -20 }}
+              variant="text"
+              leading={(s) => <Icon name="logout" {...s} />}
+              color="#132875"
+              onPress={logoutData}
+            />
+          ),
+        }}
       />
       <Drawer.Screen
         name="Notipikasyon"
         component={Notifications}
-        options={{ headerTitle: "" }}
+        options={{
+          headerTitle: "",
+          headerRight: () => (
+            <Button
+              style={{ marginRight: -20 }}
+              variant="text"
+              leading={(s) => <Icon name="logout" {...s} />}
+              color="#132875"
+              onPress={logoutData}
+            />
+          ),
+        }}
       />
     </Drawer.Navigator>
   );
 }
 
-export default function App(props) {
+export default function Passengers(props) {
+  const [pages, setPages] = useState("User");
   const data = props.value;
-  console.log("🚀 ~ file: index.js ~ line 138 ~ App ~ data", data);
   return (
-    <NavigationContainer theme={MyTheme}>
-      <MyDrawer value={data} />
-    </NavigationContainer>
+    <>
+      {pages === "User" ? (
+        <NavigationContainer theme={MyTheme} independent={true}>
+          <MyDrawer
+            value={data}
+            arrowBack={props.arrowBack}
+            setPages={setPages}
+          />
+        </NavigationContainer>
+      ) : (
+        <Home />
+      )}
+    </>
   );
 }

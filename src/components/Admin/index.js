@@ -1,8 +1,9 @@
 import * as React from "react";
-import { View, Text, Image, SafeAreaView } from "react-native";
+import { Image, View, SafeAreaView } from "react-native";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { Flex } from "@react-native-material/core";
+import AsyncStorage from "@react-native-community/async-storage";
+import { Flex, Button } from "@react-native-material/core";
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
@@ -11,6 +12,10 @@ import {
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import Users from "./pages/Users";
 import TODA from "./pages/TODA";
+import Terms from "./pages/Condition";
+import Home from "../index";
+import { useState } from "react";
+import axios from "../../config/axios";
 
 const MyTheme = {
   ...DefaultTheme,
@@ -20,14 +25,7 @@ const MyTheme = {
   },
 };
 
-function Home({ props }) {
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Notifications Screen</Text>
-    </View>
-  );
-}
-function UsersList({ props }) {
+function UsersList({ navigation, route }) {
   return (
     <Stack.Navigator initialRouteName="Users">
       <Stack.Screen
@@ -67,8 +65,8 @@ function Kondisyon() {
   return (
     <Stack.Navigator initialRouteName="TODA">
       <Stack.Screen
-        name="TODA"
-        component={TODA}
+        name="Terms"
+        component={Terms}
         options={{
           title: "Mga Kondisyon", //Set Header Title
           headerTintColor: "#132875", //Set Header text color
@@ -92,15 +90,6 @@ function CustomDrawerContent(props) {
         />
       </Flex>
       <DrawerContentScrollView {...props}>
-        <DrawerItem
-          label="Home"
-          onPress={() => {
-            props.propss.navigation.navigate("Home");
-          }}
-          icon={({ focused, color, size }) => (
-            <Icon color="#132875" size={size} name="home" />
-          )}
-        />
         <DrawerItem
           label="Mga User"
           onPress={() => {
@@ -128,13 +117,16 @@ function CustomDrawerContent(props) {
             <Icon color="#132875" size={size} name="format-list-checks" />
           )}
         />
-        <DrawerItem
+        {/* <DrawerItem
           label="Maglogout"
-          onPress={() => props.navigation.toggleDrawer()}
+          onPress={() => {
+            AsyncStorage.clear();
+            props.propss.navigation.replace("Home");
+          }}
           icon={({ focused, color, size }) => (
             <Icon color="#132875" size={size} name="logout" />
           )}
-        />
+        /> */}
       </DrawerContentScrollView>
     </SafeAreaView>
   );
@@ -144,45 +136,88 @@ const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
 function MyDrawer(prop) {
+  async function logoutData() {
+    await AsyncStorage.clear();
+    await axios.put(`/logout/${prop.value.id}`);
+    prop.setPages("Home");
+  }
   return (
     <Drawer.Navigator
       screenOptions={{ headerTintColor: "#132875" }}
       useLegacyImplementation
       drawerContent={(props) => (
-        <CustomDrawerContent propss={props} value={prop} />
+        <CustomDrawerContent propss={props} arrowBack={prop.arrowBack} />
       )}
     >
-      {/* <Drawer.Screen
-        name="Home"
-        component={Home}
-        options={{ headerTitle: "" }}
-        initialParams={{ data: prop }}
-      /> */}
       <Drawer.Screen
         name="Mga User"
         component={UsersList}
-        options={{ headerTitle: "" }}
+        options={{
+          headerTitle: "",
+          headerRight: () => (
+            <Button
+              style={{ marginRight: -20 }}
+              variant="text"
+              leading={(s) => <Icon name="logout" {...s} />}
+              color="#132875"
+              onPress={logoutData}
+            />
+          ),
+        }}
         initialParams={{ itemId: 42 }}
       />
       <Drawer.Screen
         name="Listahan ng TODA"
         component={TODAList}
-        options={{ headerTitle: "" }}
+        options={{
+          headerTitle: "",
+          headerRight: () => (
+            <Button
+              style={{ marginRight: -20 }}
+              variant="text"
+              leading={(s) => <Icon name="logout" {...s} />}
+              color="#132875"
+              onPress={logoutData}
+            />
+          ),
+        }}
       />
       <Drawer.Screen
         name="Mga Kondisyon"
         component={Kondisyon}
-        options={{ headerTitle: "" }}
+        options={{
+          headerTitle: "",
+          headerRight: () => (
+            <Button
+              style={{ marginRight: -20 }}
+              variant="text"
+              leading={(s) => <Icon name="logout" {...s} />}
+              color="#132875"
+              onPress={logoutData}
+            />
+          ),
+        }}
       />
     </Drawer.Navigator>
   );
 }
 
 export default function App(props) {
-  const data = props.value.data;
+  const [pages, setPages] = useState("User");
+  const data = props.value;
   return (
-    <NavigationContainer theme={MyTheme}>
-      <MyDrawer value={data} />
-    </NavigationContainer>
+    <>
+      {pages === "User" ? (
+        <NavigationContainer theme={MyTheme} independent={true}>
+          <MyDrawer
+            value={data}
+            arrowBack={props.arrowBack}
+            setPages={setPages}
+          />
+        </NavigationContainer>
+      ) : (
+        <Home />
+      )}
+    </>
   );
 }

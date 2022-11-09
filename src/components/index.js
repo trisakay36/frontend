@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View } from "react-native";
 import {
   Flex,
@@ -8,14 +8,33 @@ import {
   Button,
   Divider,
 } from "@react-native-material/core";
+import AsyncStorage from "@react-native-community/async-storage";
 import Logo from "./primary/Logo";
 import styles from "./Stylesheet";
 import Term from "./TermsCondition/index";
 import Registration from "./Registration";
 import Login from "./LoginForm/index";
 
+const INITIAL_DATA = "";
 export default function Landing() {
-  const [isForm, setForm] = useState("");
+  const [loggedData, setloggedData] = useState(INITIAL_DATA);
+  const [isLoaded, setLoaded] = useState(false);
+  useEffect(() => {
+    AsyncStorage.getItem("isLoggedIn").then((value) => {
+      setLoaded(true);
+      if (value) {
+        setloggedData(value);
+      }
+    });
+  }, []);
+  useEffect(() => {
+    if (loggedData !== INITIAL_DATA) {
+      AsyncStorage.setItem("isLoggedIn", `${loggedData}`);
+    }
+  }, [loggedData]);
+  const [isForm, setForm] = useState(
+    loggedData !== INITIAL_DATA ? "login" : ""
+  );
   const [isLanding, setLanding] = useState(true);
   const handleLogin = () => {
     setLanding(false);
@@ -82,16 +101,20 @@ export default function Landing() {
   );
 
   const MainPage = () => {
-    if (isLanding === false) {
-      if (isForm === "login") {
-        return <Login arrowBack={handleLanding} />;
-      } else if (isForm === "register") {
-        return <Registration arrowBack={handleLanding} />;
-      } else {
-        return <Term arrowBack={handleLanding} />;
+    if (loggedData === INITIAL_DATA) {
+      if (isLanding === false) {
+        if (isForm === "login") {
+          return <Login arrowBack={handleLanding} value={loggedData} />;
+        } else if (isForm === "register") {
+          return <Registration arrowBack={handleLanding} />;
+        } else {
+          return <Term arrowBack={handleLanding} />;
+        }
       }
+      return landing_layout;
+    } else {
+      return <Login arrowBack={handleLanding} value={loggedData} />;
     }
-    return landing_layout;
   };
   return (
     <View style={styles.textWrapper}>
