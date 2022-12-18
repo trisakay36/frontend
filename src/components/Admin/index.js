@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Image, View, SafeAreaView } from "react-native";
+import { Image, View, SafeAreaView, LogBox } from "react-native";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import AsyncStorage from "@react-native-community/async-storage";
@@ -14,9 +14,16 @@ import Users from "./pages/Users";
 import TODA from "./pages/TODA";
 import Terms from "./pages/Condition";
 import Home from "../index";
+import Fees from "./pages/Fees";
+import RatesList from "./pages/RatesList";
 import { useState } from "react";
 import axios from "../../config/axios";
+import LogoutModal from "./pages/LogoutModal";
+import Supp from "./pages/Support";
 
+LogBox.ignoreLogs([
+  "Non-serializable values were found in the navigation state",
+]);
 const MyTheme = {
   ...DefaultTheme,
   colors: {
@@ -79,7 +86,57 @@ function Kondisyon() {
     </Stack.Navigator>
   );
 }
-
+function Rate() {
+  return (
+    <Stack.Navigator initialRouteName="Rating">
+      <Stack.Screen
+        name="Ratings"
+        component={RatesList}
+        options={{
+          title: "MGA RATINGS AT KOMENTO", //Set Header Title
+          headerTintColor: "#132875", //Set Header text color
+          headerTitleStyle: {
+            fontWeight: "bold", //Set Header text style
+            textTransform: "uppercase",
+          },
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+function Fee() {
+  return (
+    <Stack.Navigator initialRouteName="Fees">
+      <Stack.Screen
+        name="Fees"
+        component={Fees}
+        options={{
+          title: "Pamasahe", //Set Header Title
+          headerTintColor: "#132875", //Set Header text color
+          headerTitleStyle: {
+            fontWeight: "bold", //Set Header text style
+            textTransform: "uppercase",
+          },
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+function Supports() {
+  return <Supp />;
+}
+function Logout({ navigation, route }) {
+  const [isLogout, setLogout] = useState(true);
+  return (
+    <LogoutModal
+      value={route.params.value}
+      setPages={route.params.setPages}
+      setLogout={setLogout}
+      isLogout={isLogout}
+      navigation={navigation}
+    />
+  );
+}
 function CustomDrawerContent(props) {
   return (
     <SafeAreaView style={{ flex: 1 }}>
@@ -117,16 +174,42 @@ function CustomDrawerContent(props) {
             <Icon color="#132875" size={size} name="format-list-checks" />
           )}
         />
-        {/* <DrawerItem
-          label="Maglogout"
+        <DrawerItem
+          label="Pamasahe"
           onPress={() => {
-            AsyncStorage.clear();
-            props.propss.navigation.replace("Home");
+            props.propss.navigation.navigate("Pamasahe");
+          }}
+          icon={({ focused, color, size }) => (
+            <Icon color="#132875" size={size} name="hand-coin" />
+          )}
+        />
+        <DrawerItem
+          label="Mga Rating"
+          onPress={() => {
+            props.propss.navigation.navigate("Rating");
+          }}
+          icon={({ focused, color, size }) => (
+            <Icon color="#132875" size={size} name="account-star" />
+          )}
+        />
+        <DrawerItem
+          label="Support"
+          onPress={() => {
+            props.propss.navigation.navigate("Support");
+          }}
+          icon={({ focused, color, size }) => (
+            <Icon color="#132875" size={size} name="comment-question" />
+          )}
+        />
+        <DrawerItem
+          label="MagLogout"
+          onPress={() => {
+            props.propss.navigation.navigate("Maglogout");
           }}
           icon={({ focused, color, size }) => (
             <Icon color="#132875" size={size} name="logout" />
           )}
-        /> */}
+        />
       </DrawerContentScrollView>
     </SafeAreaView>
   );
@@ -136,11 +219,6 @@ const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
 function MyDrawer(prop) {
-  async function logoutData() {
-    await AsyncStorage.clear();
-    await axios.put(`/logout/${prop.value.id}`);
-    prop.setPages("Home");
-  }
   return (
     <Drawer.Navigator
       screenOptions={{ headerTintColor: "#132875" }}
@@ -154,15 +232,6 @@ function MyDrawer(prop) {
         component={UsersList}
         options={{
           headerTitle: "",
-          headerRight: () => (
-            <Button
-              style={{ marginRight: -20 }}
-              variant="text"
-              leading={(s) => <Icon name="logout" {...s} />}
-              color="#132875"
-              onPress={logoutData}
-            />
-          ),
         }}
         initialParams={{ itemId: 42 }}
       />
@@ -171,15 +240,6 @@ function MyDrawer(prop) {
         component={TODAList}
         options={{
           headerTitle: "",
-          headerRight: () => (
-            <Button
-              style={{ marginRight: -20 }}
-              variant="text"
-              leading={(s) => <Icon name="logout" {...s} />}
-              color="#132875"
-              onPress={logoutData}
-            />
-          ),
         }}
       />
       <Drawer.Screen
@@ -187,15 +247,36 @@ function MyDrawer(prop) {
         component={Kondisyon}
         options={{
           headerTitle: "",
-          headerRight: () => (
-            <Button
-              style={{ marginRight: -20 }}
-              variant="text"
-              leading={(s) => <Icon name="logout" {...s} />}
-              color="#132875"
-              onPress={logoutData}
-            />
-          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Pamasahe"
+        component={Fee}
+        options={{
+          headerTitle: "",
+        }}
+      />
+      <Drawer.Screen
+        name="Rating"
+        component={Rate}
+        options={{
+          headerTitle: "",
+        }}
+      />
+      <Drawer.Screen
+        name="Support"
+        initialParams={prop}
+        component={Supports}
+        options={{
+          headerTitle: "",
+        }}
+      />
+      <Drawer.Screen
+        name="Maglogout"
+        component={Logout}
+        initialParams={prop}
+        options={{
+          headerTitle: "",
         }}
       />
     </Drawer.Navigator>

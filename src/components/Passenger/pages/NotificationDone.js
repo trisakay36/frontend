@@ -7,11 +7,14 @@ import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 const NotificationModal = (props) => {
   const toggleClose = async () => {
     try {
+      //props.onEnd();
       props.setDone(false);
       props.setBookeds(false);
-      props.setBookeds(false);
+      props.setDriverDes(null);
       props.setDrivers([]);
       props.setEndTxt("Find Driver");
+      props.setRates(true);
+      props.setDisFind(false);
     } catch (e) {
       console.error(e);
     }
@@ -68,7 +71,7 @@ const NotificationModal = (props) => {
               textAlign: "center",
               fontSize: 15,
               textTransform: "uppercase",
-              color: "#0DFF0D",
+              color: "#8bd8bd",
               fontWeight: "bold",
             }}
           />

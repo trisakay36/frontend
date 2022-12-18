@@ -3,7 +3,8 @@ const instance = axios.create();
 // Add a request interceptor
 instance.interceptors.request.use(
   function (config) {
-    // config.baseURL = "http://192.168.101.6:8080";
+    //config.baseURL = "https://192.168.101.6:8080";
+    //config.baseURL = "https://10.0.2.2:8080";
     config.baseURL = "https://tri-sakay.herokuapp.com";
     config.headers.post["Content-Type"] = "application/json;charset=utf-8";
     config.headers["Access-Control-Allow-Origin"] = "*";
@@ -13,6 +14,7 @@ instance.interceptors.request.use(
     return config;
   },
   function (error) {
+    console.log("🚀 ~ file: axios.js ~ line 17 ~ error", error);
     return Promise.reject(error);
   }
 );

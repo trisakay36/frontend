@@ -6,7 +6,7 @@ import styles from "../Stylesheet";
 const Terms = (props) => {
   return (
     <View style={styles.textWrapper}>
-      <TermCondition back={props.arrowBack} />
+      <TermCondition usersData={props} />
     </View>
   );
 };

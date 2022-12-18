@@ -13,7 +13,7 @@ import Logo from "./primary/Logo";
 import styles from "./Stylesheet";
 import Term from "./TermsCondition/index";
 import Registration from "./Registration";
-import Login from "./LoginForm/index";
+import Login from "./LoginForm";
 
 const INITIAL_DATA = "";
 export default function Landing() {
@@ -82,19 +82,22 @@ export default function Landing() {
               Wala pang Account?
             </Text>
             <Text
-              style={{ ...styles.txtGreen, textTransform: "uppercase" }}
+              style={{
+                ...styles.txtGreen,
+                color: "#8bd8bd",
+                textTransform: "uppercase",
+                fontWeight: "bold",
+              }}
               onPress={handleRegister}
             >
               Magrehistro
             </Text>
           </HStack>
           <Divider style={{ marginTop: 150 }} />
-          <Text style={styles.txtWhite}>
+          <Text style={styles.txtBlue}>
             By using Tri-Sakay you are agreeing to our
           </Text>
-          <Text style={styles.txtGreen} onPress={handleTerm}>
-            Terms of Service & Privacy Policy
-          </Text>
+          <Text style={styles.txtBlue}>Terms of Service & Privacy Policy</Text>
         </Flex>
       </VStack>
     </Flex>

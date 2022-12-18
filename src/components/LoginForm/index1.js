@@ -18,6 +18,7 @@ import Forgot from "../Password";
 import Users from "./Users";
 
 export default function Login(props) {
+  console.log("🚀 ~ file: index1.js ~ line 21 ~ Login ~ props", props);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -120,9 +121,9 @@ export default function Login(props) {
             />
             <Button
               variant="text"
-              color="#0DFF0D"
+              color="#8bd8bd"
               title="Nakalimutan ang Password?"
-              style={styles.txtGreen}
+              //style={styles.txtGreen}
               onPress={onForgot}
             />
           </Flex>

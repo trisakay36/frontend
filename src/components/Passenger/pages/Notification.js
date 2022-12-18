@@ -8,7 +8,7 @@ const NotificationModal = (props) => {
   const toggleClose = async () => {
     try {
       props.setPicks(false);
-      props.setCancell(true);
+      //props.setDriverOrigin(null);
     } catch (e) {
       console.error(e);
     }
@@ -65,7 +65,7 @@ const NotificationModal = (props) => {
               textAlign: "center",
               fontSize: 15,
               textTransform: "uppercase",
-              color: "#0DFF0D",
+              color: "#8bd8bd",
               fontWeight: "bold",
             }}
           />

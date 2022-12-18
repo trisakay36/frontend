@@ -27,8 +27,9 @@ module.exports = StyleSheet.create({
   btnGreen: {
     paddingVertical: 2,
     textTransform: "uppercase",
-    color: "#FFFFFF",
-    backgroundColor: "#0DFF0D",
+    color: "#000000",
+    //color: "#FFFFFF",
+    backgroundColor: "#8bd8bd",
     width: 300,
   },
   btnBlue: {
@@ -47,7 +48,7 @@ module.exports = StyleSheet.create({
     width: 300,
   },
   txtGreen: {
-    color: "#0DFF0D",
+    color: "#8bd8bd",
     textAlign: "center",
   },
   txtBlue: {

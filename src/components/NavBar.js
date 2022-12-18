@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { TouchableOpacity } from "react-native";
-import { AppBar } from "@react-native-material/core";
+import { AppBar, Text } from "@react-native-material/core";
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import styles from "../Stylesheet";
 const NavBar = (props) => {

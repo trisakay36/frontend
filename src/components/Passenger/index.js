@@ -1,8 +1,7 @@
-import React, { useState } from "react";
-import { View, Text, SafeAreaView } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, SafeAreaView, LogBox } from "react-native";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import AsyncStorage from "@react-native-community/async-storage";
 import { Avatar, Flex, Button } from "@react-native-material/core";
 
 import {
@@ -15,8 +14,11 @@ import Maps from "./pages/Map";
 import Profiles from "./pages/Profile";
 import Home from "../index";
 import History from "./pages/History";
-import axios from "../../config/axios";
-
+import LogoutModal from "./pages/LogoutModal";
+import Supp from "./pages/Support";
+LogBox.ignoreLogs([
+  "Non-serializable values were found in the navigation state",
+]);
 const MyTheme = {
   ...DefaultTheme,
   colors: {
@@ -40,6 +42,21 @@ function Notifications() {
 }
 function Historys({ navigation, route }) {
   return <History value={route.params.value} />;
+}
+function Supports() {
+  return <Supp />;
+}
+function Logout({ navigation, route }) {
+  const [isLogout, setLogout] = useState(true);
+  return (
+    <LogoutModal
+      value={route.params.value}
+      setPages={route.params.setPages}
+      setLogout={setLogout}
+      isLogout={isLogout}
+      navigation={navigation}
+    />
+  );
 }
 function CustomDrawerContent(props) {
   return (
@@ -75,13 +92,31 @@ function CustomDrawerContent(props) {
             <Icon color="#132875" size={size} name="history" />
           )}
         />
-        <DrawerItem
+        {/* <DrawerItem
           label="Mga Mensahe"
           onPress={() => {
             props.propss.navigation.navigate("Notipikasyon");
           }}
           icon={({ focused, color, size }) => (
             <Icon color="#132875" size={size} name="chat" />
+          )}
+        /> */}
+        <DrawerItem
+          label="Support"
+          onPress={() => {
+            props.propss.navigation.navigate("Support");
+          }}
+          icon={({ focused, color, size }) => (
+            <Icon color="#132875" size={size} name="comment-question" />
+          )}
+        />
+        <DrawerItem
+          label="MagLogout"
+          onPress={() => {
+            props.propss.navigation.navigate("Maglogout");
+          }}
+          icon={({ focused, color, size }) => (
+            <Icon color="#132875" size={size} name="logout" />
           )}
         />
       </DrawerContentScrollView>
@@ -92,11 +127,6 @@ function CustomDrawerContent(props) {
 const Drawer = createDrawerNavigator();
 
 function MyDrawer(prop) {
-  async function logoutData() {
-    await AsyncStorage.clear();
-    await axios.put(`/logout/${prop.value.id}`);
-    prop.setPages("HomeMap");
-  }
   return (
     <Drawer.Navigator
       screenOptions={{ headerTintColor: "#132875" }}
@@ -111,15 +141,6 @@ function MyDrawer(prop) {
         initialParams={prop}
         options={{
           headerTitle: "",
-          headerRight: () => (
-            <Button
-              style={{ marginRight: -20 }}
-              variant="text"
-              leading={(s) => <Icon name="logout" {...s} />}
-              color="#132875"
-              onPress={logoutData}
-            />
-          ),
         }}
       />
       <Drawer.Screen
@@ -128,15 +149,6 @@ function MyDrawer(prop) {
         initialParams={prop}
         options={{
           headerTitle: "",
-          headerRight: () => (
-            <Button
-              style={{ marginRight: -20 }}
-              variant="text"
-              leading={(s) => <Icon name="logout" {...s} />}
-              color="#132875"
-              onPress={logoutData}
-            />
-          ),
         }}
       />
       <Drawer.Screen
@@ -145,15 +157,6 @@ function MyDrawer(prop) {
         initialParams={prop}
         options={{
           headerTitle: "",
-          headerRight: () => (
-            <Button
-              style={{ marginRight: -20 }}
-              variant="text"
-              leading={(s) => <Icon name="logout" {...s} />}
-              color="#132875"
-              onPress={logoutData}
-            />
-          ),
         }}
       />
       <Drawer.Screen
@@ -161,15 +164,22 @@ function MyDrawer(prop) {
         component={Notifications}
         options={{
           headerTitle: "",
-          headerRight: () => (
-            <Button
-              style={{ marginRight: -20 }}
-              variant="text"
-              leading={(s) => <Icon name="logout" {...s} />}
-              color="#132875"
-              onPress={logoutData}
-            />
-          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Support"
+        initialParams={prop}
+        component={Supports}
+        options={{
+          headerTitle: "",
+        }}
+      />
+      <Drawer.Screen
+        name="Maglogout"
+        component={Logout}
+        initialParams={prop}
+        options={{
+          headerTitle: "",
         }}
       />
     </Drawer.Navigator>

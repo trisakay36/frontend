@@ -13,7 +13,7 @@ import styles from "../Stylesheet";
 import Logo from "../../components/primary/Logo";
 import AppBar from "../AppBar";
 import axios from "../../config/axios";
-import LoginForm from "../LoginForm/index1";
+import Pin from "../Registration/VerifyPin";
 
 export default function CreatePassword(props) {
   const [password, setPassword] = useState("");
@@ -39,9 +39,14 @@ export default function CreatePassword(props) {
     setLoading(true);
     if (password === confirmPassword) {
       try {
-        const res = await axios.put(`/register/set_password/${props.userID}`, {
-          password,
-        });
+        const res = await axios.put(
+          `/register/set_password/${
+            "userID" in props ? props.userID : props.value.id
+          }`,
+          {
+            password,
+          }
+        );
         setResult(res.data);
         setLoading(false);
       } catch (error) {
@@ -187,7 +192,7 @@ export default function CreatePassword(props) {
 
   const MainPage = () => {
     if (result.code === "PASSWORD_SET") {
-      return <LoginForm arrowBack={props.arrowBack} />;
+      return <Pin value={result} arrowBack={props.arrowBack} />;
     }
     return indexPage;
   };

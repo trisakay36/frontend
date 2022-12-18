@@ -13,9 +13,9 @@ import Logo from "../../components/primary/Logo";
 import AppBar from "../AppBar";
 import VerifyPin from "../../components/Registration/VerifyPin";
 import axios from "../../config/axios";
+import CreatePassword from "./CreatePassword";
 
 export default function ResetPassword(props) {
-  console.log("🚀 ~ file: index.js ~ line 18 ~ ResetPassword ~ props", props);
   const [email, setEmail] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [result, setResult] = useState("");
@@ -28,7 +28,7 @@ export default function ResetPassword(props) {
         email,
       });
 
-      setResult(res.data);
+      setResult(res.data.data);
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -106,7 +106,7 @@ export default function ResetPassword(props) {
       {result === "" ? (
         indexPage
       ) : (
-        <VerifyPin value={result} arrowBack={props.arrowBack} />
+        <CreatePassword value={result} arrowBack={props.arrowBack} />
       )}
     </View>
   );

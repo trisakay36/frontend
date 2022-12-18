@@ -6,6 +6,8 @@ import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 const App_Bar = (props) => {
   return (
     <AppBar
+      title="Back"
+      titleStyle={{ color: "#132875", fontSize: 18 }}
       style={{ backgroundColor: "#FFFFFF", width: "100%" }}
       leading={() => (
         <TouchableOpacity title="" onPress={props.arrowBack}>

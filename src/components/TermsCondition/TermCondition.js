@@ -1,18 +1,41 @@
 import React, { useState, useEffect } from "react";
 import { View, ScrollView } from "react-native";
-import { Text, Button, Stack, Flex, VStack } from "@react-native-material/core";
+import { Text, Stack, Flex, VStack, Button } from "@react-native-material/core";
+import { CheckBox } from "@rneui/themed";
 import styles from "../Stylesheet";
 import Logo from "../../components/primary/Logo";
 import axios from "../../config/axios";
 
 export default function Terms(props) {
   const [rows, setRows] = useState([]);
+  const [agree, setAgree] = useState(false);
+  console.log("🚀 ~ file: TermCondition.js ~ line 12 ~ Terms ~ agree", agree);
+  const [disAgree, setDisagree] = useState(false);
 
   useEffect(() => {
     axios.get("admin/terms").then((response) => {
       setRows(response.data.data);
     });
   }, []);
+
+  async function submit() {
+    try {
+      if (agree === true) {
+        await axios.put(`admin/terms/accepted/${props.usersData.value.id}`);
+        props.usersData.setVisible(false);
+      } else if (disAgree === true) {
+        props.usersData.setVisible(false);
+      }
+    } catch (error) {
+      if (error) {
+        console.log(
+          "🚀 ~ file: TermCondition.js ~ line 23 ~ submit ~ error",
+          error
+        );
+      }
+    }
+  }
+
   const layout = (
     <Flex fill center mb={20}>
       <ScrollView style={styles.scrollView}>
@@ -31,7 +54,6 @@ export default function Terms(props) {
               <Stack key={i}>
                 <Text variant="subtitle1">
                   <Text style={styles.subnumber}>{`${data.id}. `}</Text>
-                  <Text>{data.title}</Text>
                 </Text>
                 <Text variant="body1" style={styles.description}>
                   {data.description}
@@ -39,15 +61,37 @@ export default function Terms(props) {
               </Stack>
             ))}
           </Flex>
-          <Flex fill center>
+          <VStack>
+            <CheckBox
+              checked={agree}
+              checkedColor="#132875"
+              containerStyle={{ width: "90%" }}
+              onIconPress={() => setAgree(!agree)}
+              size={30}
+              textStyle={{}}
+              title="Agree with Terms and Condition"
+              titleProps={{}}
+              uncheckedColor="#132875"
+            />
+            {/* <CheckBox
+              checked={disAgree}
+              checkedColor="#F00"
+              containerStyle={{ width: "90%" }}
+              onIconPress={() => setDisagree(!disAgree)}
+              size={30}
+              textStyle={{}}
+              title="Disgree with Terms and Condition"
+              titleProps={{}}
+              uncheckedColor="#F00"
+            /> */}
             <Button
-              title="Tanggapin"
+              title="ISUBMIT"
               color="#FFFFFF"
               variant="outlined"
               style={{ ...styles.btnBlue }}
-              onPress={props.back}
+              onPress={submit}
             />
-          </Flex>
+          </VStack>
         </VStack>
       </ScrollView>
     </Flex>

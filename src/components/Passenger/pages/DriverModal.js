@@ -1,10 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, Avatar } from "@rneui/themed";
 import { View } from "react-native";
 import { HStack, Text, Divider, VStack } from "@react-native-material/core";
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
+import Chat from "./Chat";
+import { Rating } from "react-native-ratings";
+import axios from "../../../config/axios";
 
 const DriverModal = (props) => {
+  const [ratingValue, setRatingValue] = useState(0);
+  useEffect(() => {
+    axios.get(`/rating/${props.driverDetail.id}`).then((response) => {
+      const rates = parseFloat(response.data.data.rate);
+      setRatingValue(rates);
+    });
+  }, []);
+  const [openChat, setOpenChat] = useState(false);
   const driverData = props.driverDetail;
   const toggleDriver = () => {
     props.setVisible(false);
@@ -19,9 +30,18 @@ const DriverModal = (props) => {
     props.setBookss(books);
     props.setVisible(false);
   };
-
+  const chatMe = () => {
+    setOpenChat(true);
+    props.setVisible(false);
+  };
   return (
     <View>
+      <Chat
+        openChat={openChat}
+        setOpenChat={setOpenChat}
+        visibleModal={props.setVisible}
+        data={props}
+      />
       <Dialog isVisible={props.visibles} onBackdropPress={toggleDriver}>
         <Dialog.Title
           title="Ang Drayber na iyong napili"
@@ -48,6 +68,16 @@ const DriverModal = (props) => {
               color: "#132875",
             }}
           >{`${driverData.fname} ${driverData.lname}`}</Text>
+          <HStack m={4}>
+            {Array.from({ length: Math.ceil(ratingValue) }, (x, i) => {
+              return <Icon name="star" key={i} size={20} color="#FFA000" />;
+            })}
+            {Array.from({ length: 5 - ratingValue }, (x, i) => {
+              return (
+                <Icon name="star-outline" key={i} size={20} color="#FFA000" />
+              );
+            })}
+          </HStack>
           <Text
             variant="h6"
             style={{
@@ -58,13 +88,14 @@ const DriverModal = (props) => {
           >
             {JSON.parse(driverData.details).driver.toda_name}
           </Text>
+
           <HStack m={4} spacing={6}>
             <Text
               variant="subtitle1"
               style={{
                 fontWeight: "bold",
                 textAlign: "center",
-                color: "#0DFF0D",
+                color: "#8bd8bd",
               }}
             >
               {`${JSON.parse(driverData.details).driver.p_motor}`}
@@ -137,9 +168,26 @@ const DriverModal = (props) => {
         <Dialog.Actions>
           <Dialog.Button
             title="Chat"
-            onPress={() => console.log("Primary Action Clicked!")}
+            onPress={chatMe}
+            titleStyle={{
+              textAlign: "center",
+              fontSize: 15,
+              textTransform: "uppercase",
+              color: "red",
+              fontWeight: "bold",
+            }}
           />
-          <Dialog.Button title="Book" onPress={toggleBook} />
+          <Dialog.Button
+            title="Book"
+            onPress={toggleBook}
+            titleStyle={{
+              textAlign: "center",
+              fontSize: 15,
+              textTransform: "uppercase",
+              color: "#132875",
+              fontWeight: "bold",
+            }}
+          />
         </Dialog.Actions>
       </Dialog>
     </View>

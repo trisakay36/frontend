@@ -87,7 +87,7 @@ export default function Login(props) {
             />
             <Button
               variant="text"
-              color="#0DFF0D"
+              color="#8bd8bd"
               title="Nakalimutan ang Password?"
               style={styles.txtGreen}
               onPress={onForgot}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, SafeAreaView } from "react-native";
+import { View, Text, SafeAreaView, LogBox } from "react-native";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import AsyncStorage from "@react-native-community/async-storage";
@@ -16,7 +16,13 @@ import Profiles from "./pages/Profile";
 import Home from "../index";
 import axios from "../../config/axios";
 import History from "./pages/History";
+import Chat from "./pages/Chat";
+import Supp from "./pages/Support";
+import LogoutModal from "./pages/LogoutModal";
 
+LogBox.ignoreLogs([
+  "Non-serializable values were found in the navigation state",
+]);
 const MyTheme = {
   ...DefaultTheme,
   colors: {
@@ -31,15 +37,26 @@ function Profile({ navigation, route }) {
   return <Profiles value={route.params.value} />;
 }
 
-function Notifications() {
-  return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Notifications Screen</Text>
-    </View>
-  );
+function Chats({ navigation, route }) {
+  return <Chat value={route.params.value} />;
 }
 function Historys({ navigation, route }) {
   return <History value={route.params.value} />;
+}
+function Supports() {
+  return <Supp />;
+}
+function Logout({ navigation, route }) {
+  const [isLogout, setLogout] = useState(true);
+  return (
+    <LogoutModal
+      value={route.params.value}
+      setPages={route.params.setPages}
+      setLogout={setLogout}
+      isLogout={isLogout}
+      navigation={navigation}
+    />
+  );
 }
 function CustomDrawerContent(props) {
   return (
@@ -75,13 +92,31 @@ function CustomDrawerContent(props) {
             <Icon color="#132875" size={size} name="history" />
           )}
         />
-        <DrawerItem
+        {/* <DrawerItem
           label="Mga Mensahe"
           onPress={() => {
-            props.propss.navigation.navigate("Notipikasyon");
+            props.propss.navigation.navigate("Mga Mensahe");
           }}
           icon={({ focused, color, size }) => (
             <Icon color="#132875" size={size} name="chat" />
+          )}
+        /> */}
+        <DrawerItem
+          label="Support"
+          onPress={() => {
+            props.propss.navigation.navigate("Support");
+          }}
+          icon={({ focused, color, size }) => (
+            <Icon color="#132875" size={size} name="comment-question" />
+          )}
+        />
+        <DrawerItem
+          label="MagLogout"
+          onPress={() => {
+            props.propss.navigation.navigate("Maglogout");
+          }}
+          icon={({ focused, color, size }) => (
+            <Icon color="#132875" size={size} name="logout" />
           )}
         />
       </DrawerContentScrollView>
@@ -111,15 +146,6 @@ function MyDrawer(prop) {
         initialParams={prop}
         options={{
           headerTitle: "",
-          headerRight: () => (
-            <Button
-              style={{ marginRight: -20 }}
-              variant="text"
-              leading={(s) => <Icon name="logout" {...s} />}
-              color="#132875"
-              onPress={logoutData}
-            />
-          ),
         }}
       />
       <Drawer.Screen
@@ -128,15 +154,6 @@ function MyDrawer(prop) {
         initialParams={prop}
         options={{
           headerTitle: "",
-          headerRight: () => (
-            <Button
-              style={{ marginRight: -20 }}
-              variant="text"
-              leading={(s) => <Icon name="logout" {...s} />}
-              color="#132875"
-              onPress={logoutData}
-            />
-          ),
         }}
       />
       <Drawer.Screen
@@ -145,31 +162,30 @@ function MyDrawer(prop) {
         initialParams={prop}
         options={{
           headerTitle: "",
-          headerRight: () => (
-            <Button
-              style={{ marginRight: -20 }}
-              variant="text"
-              leading={(s) => <Icon name="logout" {...s} />}
-              color="#132875"
-              onPress={logoutData}
-            />
-          ),
         }}
       />
       <Drawer.Screen
         name="Mga Mensahe"
-        component={Notifications}
+        initialParams={prop}
+        component={Chats}
         options={{
           headerTitle: "",
-          headerRight: () => (
-            <Button
-              style={{ marginRight: -20 }}
-              variant="text"
-              leading={(s) => <Icon name="chat" {...s} />}
-              color="#132875"
-              onPress={logoutData}
-            />
-          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Support"
+        initialParams={prop}
+        component={Supports}
+        options={{
+          headerTitle: "",
+        }}
+      />
+      <Drawer.Screen
+        name="Maglogout"
+        component={Logout}
+        initialParams={prop}
+        options={{
+          headerTitle: "",
         }}
       />
     </Drawer.Navigator>

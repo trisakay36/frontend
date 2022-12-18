@@ -8,6 +8,10 @@ import MessageModal from "./MessageModal";
 import Notification from "./Notification";
 import DOneNotif from "./Done";
 import { useNetInfo } from "@react-native-community/netinfo";
+import Geolocation from "react-native-geolocation-service";
+import { getDistance } from "geolib";
+import { FAB } from "@rneui/themed";
+import ChatModal from "./Chat";
 
 const wait = (timeout) => {
   return new Promise((resolve) => setTimeout(resolve, timeout));
@@ -15,10 +19,9 @@ const wait = (timeout) => {
 
 const Maps = (props) => {
   const [position, setPosition] = useState({
-    latitude: 13.906576702674702,
-    longitude: 121.50914479403703,
-    latitudeDelta: 0.001,
-    longitudeDelta: 0.001,
+    latitude: 0,
+    longitude: 0,
+    coordinates: [],
   });
   const [passenger, setPassenger] = useState(null);
   const [isEnd, setEnd] = useState(null);
@@ -33,10 +36,69 @@ const Maps = (props) => {
   const [dones, setDone] = useState(false);
   const [pick, setPick] = useState(false);
   const [visibleMessage, setMessageModal] = useState(false);
+  const [feesData, setFees] = useState("0");
+  const [disOrg, setDisorg] = useState(1);
+  const [disDes, setDes] = useState(1);
+  const [userStatus, setUserstatus] = useState(0);
   const netInfo = useNetInfo();
+  const [mess, setMess] = useState(true);
+  const [openChat, setOpenChat] = useState(false);
 
   useEffect(() => {
     getNetworkStatus();
+  }, []);
+  useEffect(() => {
+    axios.get(`/fees`).then((response) => {
+      setFees(response.data.data);
+    });
+  }, []);
+
+  useEffect(() => {
+    Geolocation.getCurrentPosition(
+      (pos) => {
+        setPosition({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          coordinates: position.coordinates.concat({
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+          }),
+        });
+      },
+      (error) => {
+        console.log("🚀 ~ file: Map.js ~ line 81 ~ useEffect ~ error", error);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 20000,
+        maximumAge: 0,
+      }
+    );
+  }, []);
+  const chatMe = () => {
+    setOpenChat(true);
+  };
+  useEffect(() => {
+    Geolocation.watchPosition(
+      (pos) => {
+        setPosition({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          coordinates: position.coordinates.concat({
+            latitude: pos.coords.latitude,
+            longitude: pos.coords.longitude,
+          }),
+        });
+      },
+      (error) => {
+        console.log("🚀 ~ file: Map.js ~ line 81 ~ useEffect ~ error", error);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 20000,
+        maximumAge: 0,
+      }
+    );
   }, []);
   const getNetworkStatus = async () => {
     if (netInfo.isConnected) {
@@ -55,36 +117,34 @@ const Maps = (props) => {
     }
   };
 
-  const onRefresh = useCallback(() => {
-    wait(2000).then(() =>
-      axios.get(`/booking/myCurrent/${props.value.id}`).then((response) => {
-        const res = response.data.data;
-        if (res.status === 1) {
-          setPick(true);
-        }
-        setCurr(response.data.data);
-      })
-    );
-  }, []);
   const onPickup = useCallback(() => {
     wait(2000).then(() =>
       axios.get(`/booking/myCurrent/${props.value.id}`).then((response) => {
         const res = response.data.data;
+        setUserstatus(res.status);
+        setPick(true);
+        setCurr(res);
+      })
+    );
+  }, []);
+  const onDone = useCallback(() => {
+    wait(2000).then(() =>
+      axios.get(`/booking/myCurrent/${props.value.id}`).then((response) => {
+        const res = response.data.data;
+        setUserstatus(res.status);
         setDone(true);
-        setPick(false);
         setCurr(res);
       })
     );
   }, []);
   const onUserLocationChange = async (event) => {
     const { latitude, longitude, heading } = event.nativeEvent.coordinate;
-    // Update the car and set it to active
+
     const input = {
       latitude,
       longitude,
-      heading,
     };
-
+    onStartRide(input);
     try {
       await axios.put(`/drivers/${props.value.id}`, {
         latitude: input.latitude,
@@ -98,6 +158,7 @@ const Maps = (props) => {
   const onGetCurrentPassenger = async () => {
     axios.get(`/booking/myCurrent/${props.value.id}`).then((response) => {
       const result = response.data.data;
+      setUserstatus(result.status);
       const bookedCar = {
         destLatitude: JSON.parse(result.booking_details).destination.lat,
         destLongitude: JSON.parse(result.booking_details).destination.long,
@@ -116,63 +177,76 @@ const Maps = (props) => {
       setDisFind(true);
     });
   };
-  const onGetPassenger = () => {
-    if (netInfo.isConnected) {
-      console.log(
-        "🚀 ~ file: Map.js ~ line 40 ~ onGetDrivers ~ netInfo.isConnected",
-        netInfo.isConnected
+
+  const onStartRide = (crd) => {
+    if (order) {
+      const dis1 = getDistance(
+        {
+          latitude: crd.latitude,
+          longitude: crd.longitude,
+        },
+        {
+          latitude: order.originLatitude,
+          longitude: order.originLongitude,
+        }
       );
-      axios.put(`/drivers/status/${props.value.id}`).then((response) => {
-        setEnd(response.data.data.isOnline);
-      });
-      if (isEnd) {
-        setEndTxt("End Now");
-        axios
-          .get(`/booking/currentDriver/${props.value.id}`)
-          .then((response) => {
-            if (response.data.data === null) {
-              setMessageModal(true);
-            } else {
-              setPassenger(response.data.data);
-              setVisible2(true);
-            }
-          });
-      } else {
-        setEndTxt("Find Passenger");
+
+      setDisorg(dis1 / 1000);
+
+      if (disOrg < 1 && userStatus === 1) {
+        onPickup();
+      }
+      const dis2 = getDistance(
+        {
+          latitude: crd.latitude,
+          longitude: crd.longitude,
+        },
+        {
+          latitude: order.destLatitude,
+          longitude: order.destLongitude,
+        }
+      );
+      setDes(dis2 / 1000);
+      if (disDes < 1 && userStatus === 4) {
+        onDone();
       }
     }
   };
-  const onStartRide = (event) => {
-    console.log("🚀 ~ file: Map.js ~ line 114 ~ onStartRide ~ event", event);
-    const origin = `${order.originLatitude},${order.originLongitude}`;
-    const des = `${order.destLatitude},${order.destLongitude}`;
-    console.log("🚀 ~ file: Map.js ~ line 117 ~ onStartRide ~ order", order);
-    if (event.origin === origin) {
-      onRefresh();
-    } else if (event.destination === des) {
-    }
-  };
+
   return (
     <View>
       <MapView
         style={{ width: "100%", height: Dimensions.get("window").height }}
-        initialRegion={position}
+        region={{
+          latitude: position.latitude,
+          longitude: position.longitude,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        }}
         provider={PROVIDER_GOOGLE}
         showsUserLocation={true}
-        onUserLocationChange={onUserLocationChange}
         apikey={GOOGLE_MAPS_APIKEY}
         onDoublePress={getNetworkStatus}
+        onUserLocationChange={onUserLocationChange}
       >
         {order && (
           <MapViewDirections
             origin={origin}
             destination={directions}
-            onStart={(params) => {
-              onStartRide(params);
-            }}
             strokeWidth={5}
             strokeColor="#132875"
             apikey={GOOGLE_MAPS_APIKEY}
+          />
+        )}
+        {order && (
+          <Marker
+            coordinate={{
+              latitude: position.latitude,
+              longitude: position.longitude,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            }}
+            image={require("../../../img/marker.png")}
           />
         )}
         {order && (
@@ -188,7 +262,8 @@ const Maps = (props) => {
         style={styles.balanceButton}
       >
         <Text style={styles.balanceText}>
-          <Text style={styles.balanceText}>₱</Text> 15.00 per 4 km
+          <Text style={styles.balanceText}>₱</Text>{" "}
+          {`${parseFloat(feesData[0].name).toFixed(2)} per 4 km`}
         </Text>
       </Pressable>
 
@@ -211,19 +286,47 @@ const Maps = (props) => {
           onGetCurrentPassenger={onGetCurrentPassenger}
         />
       )}
-      {/* <MessageModal visibles={visibleMessage} setVisible={setMessageModal} /> */}
-      <Notification
-        pick={pick}
-        setPick={setPick}
-        passenger={curr}
-        onPickup={onPickup}
+      {order === null && (
+        <MessageModal visibles={visibleMessage} setVisible={setMessageModal} />
+      )}
+      {disOrg !== null && userStatus === 1 && (
+        <Notification
+          pick={pick}
+          setPick={setPick}
+          passenger={curr}
+          passengerDetail={passenger}
+          setDisorg={setDisorg}
+        />
+      )}
+      {userStatus > 0 && disDes !== null && (
+        <DOneNotif
+          dones={dones}
+          setDone={setDone}
+          passenger={curr}
+          setDisFind={setDisFind}
+          setOrder={setOrder}
+          setUserstatus={setUserstatus}
+          setDes={setDes}
+          passengerDetail={passenger}
+        />
+      )}
+      <FAB
+        visible={mess}
+        upperCase
+        icon={{ name: "email", color: "white" }}
+        style={{
+          position: "absolute",
+          bottom: 110,
+          left: Dimensions.get("window").width / 50,
+          width: 650,
+          height: 20,
+        }}
+        onPress={chatMe}
       />
-      <DOneNotif
-        dones={dones}
-        setDone={setDone}
-        passenger={curr}
-        setDisFind={setDisFind}
-        setOrder={setOrder}
+      <ChatModal
+        openChat={openChat}
+        setOpenChat={setOpenChat}
+        data={props.value}
       />
     </View>
   );

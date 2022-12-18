@@ -62,7 +62,7 @@ const CancellNotification = (props) => {
               textAlign: "center",
               fontSize: 15,
               textTransform: "uppercase",
-              color: "#0DFF0D",
+              color: "#8bd8bd",
               fontWeight: "bold",
             }}
           />

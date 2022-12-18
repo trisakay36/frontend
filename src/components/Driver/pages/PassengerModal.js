@@ -85,19 +85,6 @@ const PassengerModal = (props) => {
         </View>
         <View style={{ width: 200 }}>
           <HStack m={4} spacing={6}>
-            <Icon name="email" size={20} color="#132875" />{" "}
-            <Text
-              variant="subtitle2"
-              style={{
-                textAlign: "left",
-                color: "#363636",
-                fontStyle: "italic",
-              }}
-            >
-              {passengerData.email}
-            </Text>
-          </HStack>
-          <HStack m={4} spacing={6}>
             <Icon name="cellphone" size={20} color="#132875" />{" "}
             <Text
               variant="subtitle2"
@@ -121,6 +108,29 @@ const PassengerModal = (props) => {
               }}
             >
               {JSON.parse(passengerData.other).address}
+            </Text>
+          </HStack>
+          <HStack m={4} spacing={6}>
+            <Text
+              variant="subtitle2"
+              style={{
+                textAlign: "left",
+                color: "#132875",
+                fontWeight: "bold",
+              }}
+            >
+              Bilang ng Pasahero:
+            </Text>
+            <Text
+              variant="subtitle2"
+              style={{
+                textAlign: "left",
+                color: "#363636",
+                fontStyle: "italic",
+                width: 150,
+              }}
+            >
+              {JSON.parse(passengerData.booking_details).passenger}
             </Text>
           </HStack>
           <HStack m={4} spacing={6}>
@@ -244,7 +254,7 @@ const PassengerModal = (props) => {
               textAlign: "center",
               fontSize: 15,
               textTransform: "uppercase",
-              color: "#0DFF0D",
+              color: "#132875",
               fontWeight: "bold",
             }}
           />

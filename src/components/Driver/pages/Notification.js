@@ -12,7 +12,7 @@ const NotificationModal = (props) => {
         passengerID: props.passenger.passengerID,
       });
       props.setPick(false);
-      props.onPickup();
+      props.setDisorg(null);
     } catch (e) {
       console.error(e);
     }
@@ -69,7 +69,7 @@ const NotificationModal = (props) => {
               textAlign: "center",
               fontSize: 15,
               textTransform: "uppercase",
-              color: "#0DFF0D",
+              color: "#8bd8bd",
               fontWeight: "bold",
             }}
           />

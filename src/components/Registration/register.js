@@ -18,7 +18,7 @@ import mime from "mime";
 import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import SelectDropdown from "react-native-select-dropdown";
 import * as ImagePicker from "react-native-image-picker";
-import Pin from "./VerifyPin";
+import CreatePassword from "../../components/Password/CreatePassword";
 import AppBar from "../AppBar";
 import styles from "../Stylesheet";
 import Logo from "../../components/primary/Logo";
@@ -30,6 +30,7 @@ export default function Register(props) {
   const [mname, setMname] = useState("");
   const [lname, setLname] = useState("");
   const [address, setAddress] = useState("");
+  const [passengerType, setPassengerType] = useState("");
   const [mobile, setMobile] = useState("");
   const [email, setEmail] = useState("");
   const [todaName, setTODA] = useState([]);
@@ -42,7 +43,6 @@ export default function Register(props) {
   const [seletedRegistration, setSeletedRegistration] = useState(null);
   const [seletedPicture, setSeletedPicture] = useState(null);
   const [result, setResult] = useState("");
-  console.log("🚀 ~ file: register.js ~ line 45 ~ Register ~ result", result);
   const [errorMsg, setErrorMsg] = useState("");
   useEffect(() => {
     setTimeout(() => {
@@ -77,6 +77,7 @@ export default function Register(props) {
   formsData.append("address", address);
   formsData.append("mobile", mobile);
   formsData.append("email", email);
+  formsData.append("passengerType", passengerType);
   formsData.append("profile", selectedProfile);
 
   const handleProfile = async () => {
@@ -229,6 +230,7 @@ export default function Register(props) {
             fname === "" ||
             lname === "" ||
             address === "" ||
+            passengerType === "" ||
             mobile === "" ||
             email === ""
           ) {
@@ -264,6 +266,7 @@ export default function Register(props) {
     }
   };
 
+  const userTypes = ["None", "Student", "PWD", "Senior Citizen"];
   const indexPage = (
     <Flex fill center mb={20}>
       <AppBar arrowBack={props.arrowBack} />
@@ -295,7 +298,10 @@ export default function Register(props) {
                   )}
                 />
               </TouchableOpacity>
-              <Text variant="body2" style={{ ...styles.txtGreen, width: 300 }}>
+              <Text
+                variant="caption"
+                style={{ ...styles.txtGreen, width: 300 }}
+              >
                 {selectedProfile !== null ? selectedProfile.name : null}
               </Text>
               <Text
@@ -382,6 +388,77 @@ export default function Register(props) {
                   <Icon name="email" {...props} style={{ color: "#132875" }} />
                 )}
               />
+              {props.value == 3 && (
+                <View>
+                  <SelectDropdown
+                    borderColor="#132875"
+                    defaultButtonText={"Kategorya"}
+                    buttonStyle={{
+                      ...styles.txtInput,
+                      backgroundColor: "white",
+                      height: 55,
+                      borderRadius: 5,
+                      padding: 5,
+                      borderWidth: 1,
+                      borderColor: "gray",
+                    }}
+                    value={"Driver"}
+                    buttonTextStyle={{
+                      color: "gray",
+                      fontSize: 15,
+                    }}
+                    data={userTypes.map((item) => item)}
+                    onSelect={(selectedItem) => {
+                      setPassengerType(selectedItem);
+                    }}
+                    renderDropdownIcon={(isOpened) => {
+                      return (
+                        <Icon
+                          name={isOpened ? "chevron-up" : "chevron-down"}
+                          style={{ color: "#132875", borderColor: "#132875" }}
+                          size={30}
+                        />
+                      );
+                    }}
+                    renderCustomizedButtonChild={(selectedItem, index) => {
+                      return (
+                        <View
+                          style={{
+                            flex: 1,
+                            flexDirection: "row",
+                            alignItems: "center",
+                            paddingHorizontal: -50,
+                          }}
+                        >
+                          {selectedItem ? (
+                            <Icon
+                              name="format-list-bulleted-type"
+                              style={{ color: "#132875" }}
+                              size={32}
+                            />
+                          ) : (
+                            <Icon
+                              name="format-list-bulleted-type"
+                              style={{ color: "#132875" }}
+                              size={32}
+                            />
+                          )}
+                          <Text
+                            style={{
+                              textAlign: "right",
+                              color: selectedItem ? "gray" : "black",
+                              marginHorizontal: 10,
+                            }}
+                          >
+                            {selectedItem ? selectedItem : "Kategorya"}
+                          </Text>
+                        </View>
+                      );
+                    }}
+                  />
+                </View>
+              )}
+
               {props.value == 2 && (
                 <Box>
                   <TextInput
@@ -497,7 +574,7 @@ export default function Register(props) {
                     </TouchableOpacity>
 
                     <Text
-                      variant="body2"
+                      variant="caption"
                       style={{ ...styles.txtGreen, width: 300 }}
                     >
                       {selectedLicense !== null ? selectedLicense.name : null}
@@ -521,7 +598,7 @@ export default function Register(props) {
                       />
                     </TouchableOpacity>
                     <Text
-                      variant="body2"
+                      variant="caption"
                       style={{ ...styles.txtGreen, width: 300 }}
                     >
                       {" "}
@@ -546,7 +623,7 @@ export default function Register(props) {
                       />
                     </TouchableOpacity>
                     <Text
-                      variant="body2"
+                      variant="caption"
                       style={{ ...styles.txtGreen, width: 300 }}
                     >
                       {" "}
@@ -573,7 +650,7 @@ export default function Register(props) {
                       />
                     </TouchableOpacity>
                     <Text
-                      variant="body2"
+                      variant="caption"
                       style={{ ...styles.txtGreen, width: 300 }}
                     >
                       {" "}
@@ -605,7 +682,7 @@ export default function Register(props) {
       {result === "" ? (
         indexPage
       ) : (
-        <Pin value={result} arrowBack={props.arrowBack} />
+        <CreatePassword userID={result.data.id} arrowBack={props.arrowBack} />
       )}
     </View>
   );

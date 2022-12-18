@@ -10,9 +10,9 @@ import {
 } from "@react-native-material/core";
 import styles from "../Stylesheet";
 import Logo from "../../components/primary/Logo";
-import CreatePassword from "../../components/Password/CreatePassword";
 import axios from "../../config/axios";
 import AppBar from "../AppBar";
+import LoginForm from "../LoginForm/index1";
 
 export default function VerifyPin(props) {
   const [txtOne, setTxtOne] = useState("");
@@ -25,14 +25,14 @@ export default function VerifyPin(props) {
 
   const onVerifyPin = async () => {
     setLoading(true);
-
     if (txtOne === "" || txtTwo === "" || txtThree === "" || txtFour === "") {
       setLoading(false);
 
       setErrorMsg("Ilagay ang PIN");
     } else {
       try {
-        const userID = props.value.data.id;
+        const userID =
+          "data" in props.value ? props.value.data[0].id : props.value.id;
         const data = { otp: `${txtOne}${txtTwo}${txtThree}${txtFour}` };
         const res = await axios.post(
           `/register/set_password/otp/${userID}`,
@@ -42,8 +42,14 @@ export default function VerifyPin(props) {
         setResult(res.data);
         setLoading(false);
       } catch (error) {
-        setErrorMsg("Mali ang PIN");
-        setLoading(false);
+        if (error) {
+          console.log(
+            "🚀 ~ file: VerifyPin.js ~ line 44 ~ onVerifyPin ~ error",
+            error
+          );
+          setErrorMsg("Mali ang PIN");
+          setLoading(false);
+        }
       }
     }
   };
@@ -128,29 +134,24 @@ export default function VerifyPin(props) {
               disabled={isLoading}
               onPress={onVerifyPin}
             />
-            <Text color="#132875" w={20} style={styles.txtGreen}>
+            {/* <Text color="#132875" w={20} style={styles.txtGreen}>
               Magpadala ulit ng bagong pin.
-            </Text>
+            </Text> */}
           </Flex>
         </VStack>
       </ScrollView>
     </Flex>
   );
 
-  const MainPage = () => {
+  const MainPage = (props) => {
     if (result.data === "Granted") {
-      return (
-        <CreatePassword
-          userID={props.value.data.id}
-          arrowBack={props.arrowBack}
-        />
-      );
+      return <LoginForm arrowBack={props.props.arrowBack} />;
     }
     return indexPage;
   };
   return (
     <View style={{ ...styles.textWrapper }}>
-      <MainPage />
+      <MainPage props={props} />
     </View>
   );
 }
